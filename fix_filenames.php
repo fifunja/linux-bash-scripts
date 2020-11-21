@@ -10,13 +10,14 @@ $map = [
     'Ů' => 'U', 'Ž' => 'Z', ' ' => '_', '¦' => '', '|' => '', "'" => '', ',' => '',
 ];
 
-echo "reading folders\n\n";
-
 $i = 0;
 $dirs = [];
 $paths = [];
 $names1 = [];
 $names2 = [];
+
+echo "reading folders:\n\n";
+
 foreach ($iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator("./",
         RecursiveDirectoryIterator::SKIP_DOTS
@@ -27,6 +28,7 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = strtolower(strtr($name, $map));
     $fixname = preg_replace('!_+!', '_', $fixname);
     $fixname = str_replace("_.", '.', $fixname);
+    $fixname = str_replace("._", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
     if ($item->isDir()) {
         if ($name != $fixname) {
@@ -44,18 +46,21 @@ foreach ($iterator = new RecursiveIteratorIterator(
 
 arsort($dirs);
 if (count($dirs)) {
-    echo "\n\nfixing folders\n\n";
+
+    echo "\n\nfixing folders:\n\n";
+
     foreach ($dirs??=[] as $k => $v) {
         if ($paths[$k] === "") {
             $paths[$k] = ".";
         }
-        echo "$paths[$k]/$names1[$k] > $paths[$k]/$names2[$k]\n";
-        rename("$paths[$k]/$names1[$k]", "$paths[$k]/$names2[$k]");
+        echo "> $paths[$k]/$names2[$k]\n";
+        @rename("$paths[$k]/$names1[$k]", "$paths[$k]/$names2[$k]");
     }
     exit;
 }
 
-echo "\n\nfixing files\n\n";
+echo "\n\nfixing files:\n\n";
+
 foreach ($iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator("./",
         RecursiveDirectoryIterator::SKIP_DOTS
@@ -66,16 +71,19 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = strtolower(strtr($name, $map));
     $fixname = preg_replace('!_+!', '_', $fixname);
     $fixname = str_replace("_.", '.', $fixname);
+    $fixname = str_replace("._", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
+    $fixname = str_replace("_mp3", '.mp3', $fixname);
+    $fixname = str_replace("_ogg", '.ogg', $fixname);
     if ($item->isDir()) {
-        echo "➡️ $sub\n";
+        echo "> $sub\n";
     } else {
         if (strlen($path) == 0 && $name != $fixname) {
-            echo "* $fixname\n";
+            echo "  * $fixname\n";
             @rename($name, $fixname);
         }
         if (strlen($path) && $name != $fixname) {
-            echo "* $fixname\n";
+            echo "  * $fixname\n";
             @rename($path . $ds . $name, $path . $ds . $fixname);
         }
     }
