@@ -17,7 +17,7 @@ do
   fi
   cd "$i"
   FILES=`ls *.mp3 2>/dev/null`
-  if [ -z "$FILES" ]; then echo "No MP3s!"; cd ..; continue; fi
+  if [ -z "$FILES" ]; then echo "No MP3s in $i !"; cd ..; continue; fi
   echo -en "\nProcessing: $i\n\n"
   ls *.mp3 | sed -e "s/\(.*\)/file '\1'/" | ffmpeg -protocol_whitelist 'file,pipe' -f concat -safe 0 -i - -c copy "../$i.mp3"
   cd ..
