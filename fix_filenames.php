@@ -76,15 +76,17 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = str_replace("_mp3", '.mp3', $fixname);
     $fixname = str_replace("_ogg", '.ogg', $fixname);
     if ($item->isDir()) {
-        echo "> $sub\n";
+        continue;
     } else {
         if (strlen($path) == 0 && $name != $fixname) {
             echo "  * $fixname\n";
             @rename($name, $fixname);
+            $d = false;
         }
         if (strlen($path) && $name != $fixname) {
             echo "  * $fixname\n";
             @rename($path . $ds . $name, $path . $ds . $fixname);
+            $d = false;
         }
     }
 }
