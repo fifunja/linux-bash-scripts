@@ -79,7 +79,7 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = str_replace("._", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
     if ($item->isDir()) {
-        echo "> $path";
+        echo "> $name\n";
         continue;
     } else {
         if (strlen($path) == 0 && $name != $fixname) {
