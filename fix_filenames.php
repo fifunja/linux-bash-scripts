@@ -18,8 +18,7 @@ $paths = [];
 $names1 = [];
 $names2 = [];
 
-echo "reading folders:\n\n";
-
+echo "reading folders:\n";
 foreach ($iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator("./",
         RecursiveDirectoryIterator::SKIP_DOTS
@@ -29,8 +28,11 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $name = $iterator->getFileName();
     $fixname = strtolower(strtr($name, $map));
     $fixname = preg_replace('!_+!', '_', $fixname);
-    $fixname = str_replace("_.", '.', $fixname);
+    $fixname = str_replace("-_", '-', $fixname);
+    $fixname = str_replace(".-", '.', $fixname);
     $fixname = str_replace("._", '.', $fixname);
+    $fixname = str_replace("_-", '-', $fixname);
+    $fixname = str_replace("_.", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
     if ($item->isDir()) {
         if ($name != $fixname) {
@@ -48,9 +50,7 @@ foreach ($iterator = new RecursiveIteratorIterator(
 
 arsort($dirs);
 if (count($dirs)) {
-
-    echo "\n\nfixing folders:\n\n";
-
+    echo "\n\nfixing folders:\n";
     foreach ($dirs??=[] as $k => $v) {
         if ($paths[$k] == "") {
             $paths[$k] = ".";
@@ -58,14 +58,11 @@ if (count($dirs)) {
         echo "> $paths[$k]/$names2[$k]\n";
         @rename("$paths[$k]/$names1[$k]", "$paths[$k]/$names2[$k]");
     }
-
-    echo "\n\nFolders fixed. Please re-run the script.\n";
-
+    echo "\n\nFolders fixed. Please re-run the script.\n\n";
     exit;
 }
 
-echo "\n\nfixing files:\n\n";
-
+echo "\n\nfixing files:\n";
 foreach ($iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator("./",
         RecursiveDirectoryIterator::SKIP_DOTS
@@ -75,10 +72,11 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $name = $iterator->getFileName();
     $fixname = strtolower(strtr($name, $map));
     $fixname = preg_replace('!_+!', '_', $fixname);
-    $fixname = str_replace("_.", '.', $fixname);
-    $fixname = str_replace("_-", '-', $fixname);
-    $fixname = str_replace("._", '.', $fixname);
+    $fixname = str_replace("-_", '-', $fixname);
     $fixname = str_replace(".-", '.', $fixname);
+    $fixname = str_replace("._", '.', $fixname);
+    $fixname = str_replace("_-", '-', $fixname);
+    $fixname = str_replace("_.", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
     if ($item->isDir()) {
         echo "> $name\n";
@@ -94,5 +92,4 @@ foreach ($iterator = new RecursiveIteratorIterator(
         }
     }
 }
-
-echo "\nDone.\n";
+echo "\nDone.\n\n";

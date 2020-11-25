@@ -1,29 +1,31 @@
 #!/bin/bash
 
 if [ -e ".concat" ]; then exit; fi
-find . -type f -size 0 -delete
+find . -maxdepth 1 -type f -size 0 -delete
 
 for i in *
 do
   # skip if not a directory
   if [ ! -d "$i" ]; then continue; fi
+  echo -en "> $i\n"
 
   # check if file exists
   if [ -e "$i.mp3" ]; then
-    A=`du -sh "$i" | awk '{print $1}' | sed 's/[BKMG]//g' | awk '{print int($1)}'` # folder size, integer
-    B=`du -sh "$i.mp3" | awk '{print $1}' | sed 's/[BKMG]//g' | awk '{print int($1)+10}'` # file size, integer + 10
+    A=`du -sb "$i" | awk '{print $1}' | awk '{print int($1)}'` # folder size, integer
+    B=`du -sb "$i.mp3" | awk '{print $1}' | awk '{print int($1)+10485760}'` # file size, integer + 10 MB
     if [ "$B" -gt "$A" ]; then
       echo $i 🐱
       continue
     else
       echo "Deleting $i ..."
-      sleep 5
+      sleep 2
       rm -f "$i.mp3"      
     fi
   fi
 
   # dive into the album
   cd "$i"
+  find . -maxdepth 1 -type f -size 0 -delete
   FILES=`ls *.mp3 2>/dev/null`
   D=0
   for x in *
@@ -37,24 +39,22 @@ do
   echo -en "\nProcessing: $i\n\n"
   ls *.mp3 | sed -e "s/\(.*\)/file '\1'/" | ffmpeg -protocol_whitelist 'file,pipe' -f concat -safe 0 -i - -c copy "../$i.mp3"
   cd ..
+  find . -maxdepth 1 -type f -size 0 -delete
 
   # check if file exists
   if [ -e "$i.mp3" ]; then
-    A=`du -sh "$i" | awk '{print $1}' | sed 's/[BKMG]//g' | awk '{print int($1)}'` # folder size, integer
-    B=`du -sh "$i.mp3" | awk '{print $1}' | sed 's/[BKMG]//g' | awk '{print int($1)+10}'` # file size, integer + 10
-    echo "Sizes: $A $B"
-    sleep 3
+    A=`du -sb "$i" | awk '{print $1}' | awk '{print int($1)}'` # folder size, integer
+    B=`du -sb "$i.mp3" | awk '{print $1}' | awk '{print int($1)+10485760}'` # file size, integer + 10 MB
     if [ "$B" -gt "$A" ]; then
       echo $i 🐱
-      sleep 1
       continue
     else
       echo "Deleting $i ..."
-      sleep 5
+      sleep 2
       rm -f "$i.mp3"      
     fi
   fi
 done
 
-find . -type f -size 0 -delete
+find . -maxdepth 1 -type f -size 0 -delete
 touch .concat
