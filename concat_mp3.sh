@@ -22,7 +22,8 @@ do
       rm -f "$i.mp3"      
     fi
   fi
-
+  # check if already processed
+  if [ -e "$i/.concat" ]; then continue; fi
   # dive into the album
   cd "$i"
   find . -maxdepth 1 -type f -size 0 -delete
@@ -32,12 +33,13 @@ do
   do
     if [ -d "$x" ]; then D=1; continue; fi # there is a directory!
   done
-  if [ "$D" -eq "1" ]; then echo "> subfolders present ..."; cd ..; continue; fi # skip the loop if there is a directory inside!
+  if [ "$D" -eq "1" ]; then echo "📁 subfolders present ..."; cd ..; continue; fi # skip the loop if there is a directory inside!
   if [ -z "$FILES" ]; then echo "💀 no MP3s in $i"; cd ..; continue; fi
 
   # create MP3
   echo -en "\nProcessing: $i\n\n"
   ls *.mp3 | sed -e "s/\(.*\)/file '\1'/" | ffmpeg -protocol_whitelist 'file,pipe' -f concat -safe 0 -i - -c copy "../$i.mp3"
+  touch .concat
   cd ..
   find . -maxdepth 1 -type f -size 0 -delete
 
