@@ -76,7 +76,9 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = strtolower(strtr($name, $map));
     $fixname = preg_replace('!_+!', '_', $fixname);
     $fixname = str_replace("_.", '.', $fixname);
+    $fixname = str_replace("_-", '-', $fixname);
     $fixname = str_replace("._", '.', $fixname);
+    $fixname = str_replace(".-", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
     if ($item->isDir()) {
         echo "> $name\n";
