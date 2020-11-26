@@ -41,7 +41,6 @@ do
   ls *.mp3 | sed -e "s/\(.*\)/file '\1'/" | ffmpeg -protocol_whitelist 'file,pipe' -f concat -safe 0 -i - -c copy "../$i.mp3"
   touch .concat
   cd ..
-  find . -maxdepth 1 -type f -size 0 -delete
 
   # check if file exists
   if [ -e "$i.mp3" ]; then
