@@ -9,7 +9,7 @@ $map = [
     'Ď' => 'D', 'Ě' => 'E', 'Ĺ' => 'L', 'Ň' => 'N', 'Ŕ' => 'R', 'Ř' => 'R', 'Š' => 'S', 'Ť' => 'T',
     'Ů' => 'U', 'Ž' => 'Z',
     ' ' => '_', '¦' => '', '|' => '', "'" => '', ',' => '', ')' => '', '(' => '', '[' => '', ']' => '',
-    "@" => "",
+    "@" => '', "&" => '',
 ];
 
 $i = 0;
@@ -34,6 +34,7 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = str_replace("_-", '-', $fixname);
     $fixname = str_replace("_.", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
+    $fixname = preg_replace('!_+!', '_', $fixname);
     if ($item->isDir()) {
         if ($name != $fixname) {
             $dirs[$sub] = substr_count($sub, "/");
@@ -78,6 +79,7 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = str_replace("_-", '-', $fixname);
     $fixname = str_replace("_.", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
+    $fixname = preg_replace('!_+!', '_', $fixname);
     if ($item->isDir()) {
         echo "> $name\n";
         continue;
