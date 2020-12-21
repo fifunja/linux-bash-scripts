@@ -10,7 +10,7 @@ $map = [
     'Ď' => 'D', 'Ě' => 'E', 'Ĺ' => 'L', 'Ň' => 'N', 'Ŕ' => 'R', 'Ř' => 'R', 'Š' => 'S', 'Ť' => 'T',
     'Ů' => 'U', 'Ž' => 'Z',
     ' ' => '_', '¦' => '', '|' => '', "'" => '', ',' => '', ')' => '', '(' => '', '[' => '', ']' => '',
-    "@" => '', "&" => '',
+    "@" => '', "&" => '', '+' => '',
 ];
 
 $work = true;
@@ -22,7 +22,8 @@ do {
     $names2 = [];
 
     clearstatcache();
-    echo "reading folders:\n";
+    echo "reading folders ...\n";
+
     foreach ($iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator("./",
             RecursiveDirectoryIterator::SKIP_DOTS
@@ -30,6 +31,7 @@ do {
         $path = $iterator->getSubPath();
         $sub = $iterator->getSubPathName();
         $name = $iterator->getFileName();
+
         $fixname = strtolower(strtr($name, $map));
         $fixname = preg_replace('!_+!', '_', $fixname);
         $fixname = str_replace("-_", '-', $fixname);
@@ -38,7 +40,9 @@ do {
         $fixname = str_replace("_-", '-', $fixname);
         $fixname = str_replace("_.", '.', $fixname);
         $fixname = str_replace("_-_", '-', $fixname);
+        $fixname = trim($fixname, " _-.");
         $fixname = preg_replace('!_+!', '_', $fixname);
+
         if ($item->isDir()) {
             if ($name != $fixname) {
                 $dirs[$sub] = substr_count($sub, "/");
@@ -54,20 +58,28 @@ do {
     }
     arsort($dirs);
     if (count($dirs)) {
-        echo "\n\nfixing folders:\n";
+        $fixes = count($dirs);
+
+        echo "\n\nfixing folders ($fixes) ...\n";
+
         foreach ($dirs??=[] as $k => $v) {
             if ($paths[$k] == "") {
                 $paths[$k] = ".";
             }
             echo "> $paths[$k]/$names2[$k]\n";
-            @rename("$paths[$k]/$names1[$k]", "$paths[$k]/$names2[$k]");
+            // do not cycle if rename fails
+            if (!@rename("$paths[$k]/$names1[$k]", "$paths[$k]/$names2[$k]")) {
+                echo "\n!!! FAILED !!!\n";
+                exit;
+            }
         }
     } else {
         $work = false;
     }
 } while ($work);
 
-echo "\n\nfixing files:\n";
+echo "\n\nfixing files ...\n";
+
 foreach ($iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator("./",
         RecursiveDirectoryIterator::SKIP_DOTS
@@ -75,6 +87,7 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $path = $iterator->getSubPath();
     $sub = $iterator->getSubPathName();
     $name = $iterator->getFileName();
+
     $fixname = strtolower(strtr($name, $map));
     $fixname = preg_replace('!_+!', '_', $fixname);
     $fixname = str_replace("-_", '-', $fixname);
@@ -83,7 +96,12 @@ foreach ($iterator = new RecursiveIteratorIterator(
     $fixname = str_replace("_-", '-', $fixname);
     $fixname = str_replace("_.", '.', $fixname);
     $fixname = str_replace("_-_", '-', $fixname);
+    $fixname = trim($fixname, " _-.");
+    if ($fixname == "concat") {
+        $fixname = ".concat";
+    }
     $fixname = preg_replace('!_+!', '_', $fixname);
+
     if ($item->isDir()) {
         echo "> $name\n";
         continue;
