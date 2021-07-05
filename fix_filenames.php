@@ -70,7 +70,6 @@ do {
             // do not cycle if rename fails
             if (!@rename("$paths[$k]/$names1[$k]", "$paths[$k]/$names2[$k]")) {
                 echo "\n!!! FAILED !!!\n";
-                exit;
             }
         }
     } else {
